@@ -79,12 +79,11 @@ def Midi2Tensor(filename, midi_hz, only_onsets):
             pitch.append(note.pitch - 21)
             vel.append(note.velocity / 127)
             
-    # Add pedal information
-    for ped in pedals:
-        assert(ped.number==64)
-        tick.append( int(np.floor(ped.time * midi_hz)) )
-        pitch.append(88)
-        vel.append(ped.value / 127)
+    # # Add pedal information
+    # for ped in pedals:
+    #     tick.append( int(np.floor(ped.time * midi_hz)) )
+    #     pitch.append(88)
+    #     vel.append(ped.value / 127)
 
     midiX = sp.sparse.csc_matrix((vel, (pitch, tick)), shape=(89, num_ticks+1), dtype="float32")
     return midiX
@@ -143,7 +142,7 @@ def SaveTestData(audioX, midiX, fileNum, output_dir, test_segment_length, audio_
         write(filename + "_groundTruth.wav", 16000, wavdata)
 
     
-def PreprocessMaestro(train_or_test, maestro_dir, split, out_dir,
+def PreprocessGroove(train_or_test, maestro_dir, split, out_dir,
                        audio_hz=16000, midi_hz=250,
                        only_onsets=False,
                        mu_law_encode=True, mu_quantization=256, test_segment_length=4,
@@ -162,11 +161,13 @@ def PreprocessMaestro(train_or_test, maestro_dir, split, out_dir,
         audio_dir = separate_audio_dir
         
     # Read maestro metadata
-    metadata = csv.DictReader(open(maestro_dir + '/maestro-v1.0.0.csv'))
+    metadata = csv.DictReader(open(maestro_dir + '/info.csv'))
     test = []
     validate = []
     train = []
     for file in metadata:
+        if (file['audio_filename'] == '' or file['midi_filename'] == '' or file['beat_type'] == 'fill'):
+            continue
         if (file['split']=='train'):
             train.append(file)
         elif (file['split']=='validation'):
@@ -183,7 +184,7 @@ def PreprocessMaestro(train_or_test, maestro_dir, split, out_dir,
 
     # Write file information to the output directory, essential for dataloader
     if not no_output_csv:
-        csvwriter = csv.DictWriter(open(out_dir + "/filenames.csv", 'w', newline=''),
+        csvwriter = csv.DictWriter(open(out_dir + "filenames.csv", 'w+', newline=''),
                                    fieldnames=["index",
                                                "audio_samples",
                                                "midi_samples",
@@ -209,7 +210,8 @@ def PreprocessMaestro(train_or_test, maestro_dir, split, out_dir,
         audio_filename = audio_dir + "/" + piece["audio_filename"][:-4] + audio_suffix
 
         midi_filename = maestro_dir + "/" + piece["midi_filename"]        
-
+        print(audio_filename)
+        print(midi_filename)
         # Save audio array
         audioX = None
         if not only_midi:
@@ -250,4 +252,4 @@ if __name__ == "__main__":
         data = f.read()
     config = json.loads(data)["preprocess_config"]
 
-    PreprocessMaestro(**config)
+    PreprocessGroove(**config)

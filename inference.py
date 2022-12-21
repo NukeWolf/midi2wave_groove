@@ -50,7 +50,9 @@ def inference(test_dir, model_filename, device, output_dir,
         filename = filedata["index"]
 
         if use_conditioning:
-            midiX = torch.load(test_dir + '/' + filename + ".midiX")
+            midiX = torch.load(test_dir + filename + ".midiX")
+            print(test_dir + '/' + filename + ".midiX")
+            print(midiX)
             if no_pedal:
                 midiX = midiX[:88]
         
@@ -64,7 +66,8 @@ def inference(test_dir, model_filename, device, output_dir,
             midiX = None
             
         if use_train_mode or teacher_force:
-            teacher_audio = torch.load(test_dir + '/' + filename + ".audioX")
+            teacher_audio = torch.load(test_dir + filename + ".audioX")
+            print(test_dir + filename + ".audioX")
             teacher_audio = teacher_audio.unsqueeze(0).to(device)
 
         if use_train_mode:
@@ -76,6 +79,7 @@ def inference(test_dir, model_filename, device, output_dir,
             model_output = model((midiX, teacher_audio), training=False)
             # FLAG get rid of [0] by changing wavenet autoencoder output
             audio = sampler(model_output)[0]
+            audio = utils.mu_law_decode(audio, 256)
 
         elif teacher_force:
             filename = filename + "_teacherforce"            
@@ -84,16 +88,17 @@ def inference(test_dir, model_filename, device, output_dir,
                 teacher_samples = int(teacher_length*audio_hz)
                 teacher_audio = teacher_audio[:, :teacher_samples]
                 filename = filename + str(teacher_length) + "s"
-            audio = model.inference(midiX, use_logistic_mix=use_logistic_mix,
+            audio = model.inference(midiX,
                                     teacher_audio=teacher_audio)
 
         else:
             if use_conditioning:
-                audio = model.inference(midiX, use_logistic_mix)
+                audio = model.inference(midiX)
             else:
                 audio = model.inference(midiX, use_logistic_mix, length=generation_length, device=device, batch_size=1)
 
         audio = audio.squeeze().cpu().numpy()
+        
         write(output_dir + '/' + filename + "_inference.wav", audio_hz, audio)
 
         print("Saved " + filename)

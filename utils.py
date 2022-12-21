@@ -82,6 +82,7 @@ def mu_law_encode_numpy(x, mu_quantization=256):
     scaling = np.log1p(mu)
     x_mu = np.sign(x) * np.log1p(mu * np.absolute(x)) / scaling
     encoding = ((x_mu + 1) / 2 * mu + 0.5).astype("int64")
+    print(encoding)
     return encoding
 
 def gumbel_noise_like(X, floor=1e-5):

@@ -66,11 +66,12 @@ class WavenetAutoencoder(torch.nn.Module):
         return q, q_bar
     
     def inference(self, midi_features, **kwargs):
+        if midi_features == None:
+            return self.wavenet.inference(None, cond_channels=512, **kwargs)
+        #print(midi_features.size())
+        
+        #debug.plot_tensor(midi_features.squeeze(), "test/midi_ininfer")
 
-        print(midi_features.size())
-        
-        debug.plot_tensor(midi_features.squeeze(), "test/midi_ininfer")
-        
         batch_size = midi_features.size(0)
         null_features = torch.zeros(batch_size, 1, midi_features.size(2)).to(midi_features.device)
         # FLAG get rid of _ after I stop outputting resblock signal
@@ -80,6 +81,6 @@ class WavenetAutoencoder(torch.nn.Module):
             cond_features, _ = self.argmax_autoencode(cond_features)
 
         print(cond_features.size())
-        debug.plot_tensor(cond_features.squeeze(), "test/in_inference")
+        #debug.plot_tensor(cond_features.squeeze(), "test/in_inference")
 
         return self.wavenet.inference(cond_features, **kwargs)

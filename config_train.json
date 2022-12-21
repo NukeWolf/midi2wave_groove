@@ -1,13 +1,13 @@
 {
     "train_config": {
-	"device": "cuda:1",
-        "output_directory": "./checkpoints/",
-        "epochs": 100000,
+	"device": "cuda:0",
+        "output_directory": "/home/eeng439_ah2373/project/midi2wave/checkpoints",
+        "epochs": 10000,
         "learning_rate": 1e-3,
-        "iters_per_checkpoint": 500,
-        "batch_size": 2,
+        "iters_per_checkpoint": 5000,
+        "batch_size": 1,
         "seed": 5206,
-        "checkpoint_path": "",
+        "checkpoint_path": "/home/eeng439_ah2373/project/midi2wave/checkpoints/wavenet_105000",
 	"use_scheduled_sampling": false,
 	"use_wavenet_autoencoder": true,
 	"use_variational_autoencoder": false,
@@ -17,8 +17,8 @@
     },
     
     "data_config": {
-	"dataset_path": "data/train/",
-	"segment_length": 7.5,
+	"dataset_path": "/home/eeng439_ah2373/project/data/train/",
+	"segment_length": 8,
 	"audio_hz": 16000,
 	"midi_hz": 250,
 	"midi_channels": 89,
@@ -43,6 +43,9 @@
 	"use_res_out_conv": true,
 	"use_res_out_bias": true,
 	"res_block_gain": 1,
+
+	"use_skip_out":true,
+	"same_cond_each_resblock":false,
 	
 	"n_skip_channels": 128,
 	"use_skip_bias": true,
@@ -69,36 +72,42 @@
     "cond_wavenet_config": {
     	"onehot_input": false,
         "n_in_channels": 88,
-	"use_in_act": false,
-	"use_in_bias": false,
+		"use_in_act": false,
+		"use_in_bias": false,
 	
         "n_layers": 12,
         "max_dilation": 64,
         "n_residual_channels": 256,
-	"use_dilate_bias": false,
-	"use_res_out_conv": false,	
+		"use_dilate_bias": false,
+		"use_res_out_conv": false,	
         "use_res_out_bias": false,
-	"res_block_gain": 1,
+		
+		
 
-	"n_skip_channels": 512,
-	"use_skip_bias": true,	
-	"n_skip_to_out_channels": 512,
-        "n_out_channels": 512,
+		"n_skip_channels": 512,
+		"use_skip_bias": true,	
+		"n_skip_to_out_channels": 512,
+			"n_out_channels": 512,
+		
+		"use_skip_out":true,
+		"same_cond_each_resblock":false,
+		"res_block_gain":1,
 
-	"use_conditioning": false,
-	"n_cond_channels": 1,
-	"use_cond_conv": true,
-	"use_cond_bias": false,
-	"use_cond_act": false,
+		"use_conditioning": false,
+		"n_cond_channels": 1,
+		"use_cond_conv": true,
+		"use_cond_bias": false,
+		"use_cond_act": false,
 
-	"resblock_drop_prob": 0.042,
-	"out_drop_prob": 0.042,
+		"resblock_drop_prob": 0.042,
+		"out_drop_prob": 0.042,
 
-	"upsamp_scale": 1,
-	"upsample_by_copy": true,
-	"upsamp_conv_window": 64,
+		"upsamp_scale": 1,
+		"upsample_by_copy": true,
+		"upsamp_conv_window": 64,
+		
 
-	"name": "encoder"
+		"name": "encoder"
     },
     
     "scheduled_sampler_config": {

@@ -44,7 +44,7 @@ from scipy.io.wavfile import write
 
 import utils
 from utils import as_variable, mu_law_encode
-from maestro_dataloader import MaestroDataloader
+from groove_dataloader import GrooveDataloader
 from scheduled_sampling  import ScheduledSamplerWithPatience
 import debug
 from nn.wavenet import Wavenet
@@ -148,7 +148,9 @@ def train(num_gpus, rank, group_name, device, output_directory, epochs, learning
 
     if num_gpus > 1:
         device = init_distributed(rank, num_gpus, group_name, **dist_config)
+    print(device)
     device = torch.device(device)
+    print(device)
     torch.manual_seed(seed)
     torch.cuda.manual_seed(seed)
         
@@ -181,7 +183,7 @@ def train(num_gpus, rank, group_name, device, output_directory, epochs, learning
         iteration += 1
 
     # Dataloader
-    trainset = MaestroDataloader(**data_config)
+    trainset = GrooveDataloader(**data_config)
     if num_gpus > 1:
         train_sampler = DistributedSampler(trainset)
     else:
@@ -222,8 +224,11 @@ def train(num_gpus, rank, group_name, device, output_directory, epochs, learning
     # ================ MAIN TRAINING LOOP! ===================
     for epoch in range(epoch_offset, epochs):
         print("Epoch: {}".format(epoch))
+        file1 = open("/home/eeng439_ah2373/project/data/log/loss", "a")  # append mode
+        file1.write(f'Epoch: {epoch}\n')
+        file1.close()
         for i, batch in enumerate(train_loader):
-
+            print(i)
             model.zero_grad()
 
             x, y = batch
@@ -252,6 +257,10 @@ def train(num_gpus, rank, group_name, device, output_directory, epochs, learning
             loss.backward()
             optimizer.step()
             print("total loss:     {}:\t{:.9f}".format(iteration, reduced_loss))
+            file1 = open("/home/eeng439_ah2373/project/data/log/loss", "a")  # append mode
+            file1.write(str(reduced_loss) + '\n')
+            file1.close()
+
             if use_variational_autoencoder:
                 print("    diversity loss: {:.9f}".format(div_loss))
 

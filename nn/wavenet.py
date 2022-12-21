@@ -444,6 +444,8 @@ class Wavenet(torch.nn.Module):
             else:
                 assert(batch_size > 0 and cond_channels > 0)
                 cond_features = torch.zeros(size=[batch_size, cond_channels, length]).to(device)
+                cond_features = self.upsample(cond_features)
+                length = length * self.upscale
 
             if self.use_cond_conv:
                 # make condition features for every timestep and res layer
@@ -502,7 +504,7 @@ class Wavenet(torch.nn.Module):
             logits[:, s+1] = self.infer_step(cond_sample, forward_sample)
             
             output_audio[:, s+1] = sampler(logits[:, s+1])
-
+            
         end_time = time.time()
         ###################
         # end inference

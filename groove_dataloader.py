@@ -18,7 +18,7 @@ import torch.utils.data
 
 import utils
 
-class MaestroDataloader(torch.utils.data.Dataset):
+class GrooveDataloader(torch.utils.data.Dataset):
 
     def __init__(self, dataset_path, segment_length, midi_hz, audio_hz, midi_channels, no_pedal, print_file_nums=False, epoch_length=None):
         
@@ -68,7 +68,8 @@ class MaestroDataloader(torch.utils.data.Dataset):
             midi = np.load(self.dataset_path + self.file_names[file_num] + ".npz")
             midi = sp.sparse.csc_matrix((midi["data"], midi["indices"], midi["indptr"]),
                                         shape=(self.midi_channels, self.midi_samples[file_num]))
-        
+            if (midi.shape[1] >= self.midi_segment_length):
+                print(midi.shape)
             assert (midi.shape[1] >= self.midi_segment_length),\
                 "segment_length > length of midi file"+str(file_num)
 

@@ -1,13 +1,15 @@
 {
     "inference_config": {
-	"test_dir": "test/4s/",
-	"model_filename": "checkpoints/wavenet_0",
-	"device": "cuda:1",
-	"output_dir": "test/4s/",
-	"use_logistic_mix": true,
-	"teacher_force": true,
+	"test_dir": "/home/eeng439_ah2373/project/data/test/",
+	"model_filename": "/home/eeng439_ah2373/project/midi2wave/checkpoints/wavenet_105000",
+	"device": "cuda:0",
+	"output_dir": "/home/eeng439_ah2373/project/data/results/",
+	"use_logistic_mix": false,
+	"teacher_force": false,
 	"teacher_length": 2,
-	"no_pedal": false,
-	"audio_hz": 16000
+	"no_pedal": true,
+	"audio_hz": 16000,
+	"use_conditioning":true,
+	"use_train_mode":false
     }
 }

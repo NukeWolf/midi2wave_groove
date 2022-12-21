@@ -9,6 +9,8 @@ If saving to a different location than original audio, have to recreate the maes
 import argparse
 import csv
 import librosa
+import soundfile as sf
+import os
 
 '''
 Resample and mono-ize audio
@@ -17,19 +19,22 @@ def resample_audio(dataset, dataset_path, output_path, sample_hz, resample_type)
 
     print("resampling " + str(len(dataset)) + " pieces...")
     
-    for i, piece in enumerate(dataset):
-
+    for i,piece in enumerate(dataset):
         print("file " + str(i), end='\r', flush=True)
-
+        filename_suffix = "_" + str(sample_hz) + ".wav"
+        filename = output_path + piece["audio_filename"][:-4] + filename_suffix
+        print('hey')
+        print(piece["audio_filename"])
+        print(filename)
         audio, sampling_rate = librosa.load(dataset_path + piece["audio_filename"],
                                             sr=sample_hz,
                                             mono=True,
                                             res_type=resample_type)
         assert(sampling_rate==sample_hz)
 
-        filename_suffix = "_" + str(sample_hz) + ".wav"
-        filename = output_path + piece["audio_filename"][:-4] + filename_suffix
-        librosa.output.write_wav(filename, audio, sample_hz)
+        
+        sf.write(filename, audio, sample_hz,'FLOAT')
+
 
 
 if __name__ == "__main__":
@@ -55,11 +60,13 @@ if __name__ == "__main__":
     args=parser.parse_args()
     
     #Read file metadata from maestro csv and sort train/validate/test files
-    metadata = csv.DictReader(open(args.data_dir + 'maestro-v1.0.0.csv'))
+    metadata = csv.DictReader(open(args.data_dir + 'info.csv'))
     test = []
     validate = []
     train = []
     for data in metadata:
+        if (data['audio_filename'] == ''):
+            continue
         if (data['split']=='train'):
             train.append(data)
         elif (data['split']=='validation'):
